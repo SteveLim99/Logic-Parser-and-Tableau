@@ -9,13 +9,11 @@ int j;
 
 struct tree
 {
-  char *root;
+  char *formula;
   struct tree *left;
   struct tree *right;
   struct tree *parent;
 };
-
-
 
 char *getCharacterInRange(char *inputChar, int start, int end){
   char *newCharPointer = (char*)malloc(sizeof(char) * (end - start));
@@ -209,9 +207,11 @@ char *addNegation(char *inputChar){
 }
 
 // leftRight is the branch variable: 1 - left, 2 - right
+// We keep on appending to the left of the tree if the formula is alpha
+// We only append to the right when the forumla is beta
 void makeNewNode(struct tree *tree, char *inputChar, int leftRight){
   struct tree *newNode = malloc(sizeof(struct tree));
-  newNode->root = inputChar;
+  newNode->formula = inputChar;
   newNode->left = NULL;
   newNode->right = NULL;
   newNode->parent = tree;
@@ -253,27 +253,27 @@ void alphaOrBeta(struct tree *tree, char *first, char *second, int type){
 }
 
 void makeTree(struct tree *tree){
-  char *root = (*tree).root;
-  int rootType = parse(root);
+  char *formula = (*tree).formula;
+  int formulaType = parse(formula);
 
   //Binary formulas 
-  if(rootType == 3){
-    char connective = getConnective(root);
-    if(connective == '^') alphaOrBeta(tree,partone(root),parttwo(root),2);
-    else if(connective == 'v') alphaOrBeta(tree,partone(root), parttwo(root), 3);
+  if(formulaType == 3){
+    char connective = getConnective(formula);
+    if(connective == '^') alphaOrBeta(tree,partone(formula),parttwo(formula),2);
+    else if(connective == 'v') alphaOrBeta(tree,partone(formula), parttwo(formula), 3);
     // a > b <=> -a v b
-    else if(connective == '>') alphaOrBeta(tree,addNegation(partone(root)), parttwo(root), 3);
+    else if(connective == '>') alphaOrBeta(tree,addNegation(partone(formula)), parttwo(formula), 3);
   }
 
   //Negation formulas that a followed by a binary formula
-  if (rootType == 2 && parse(returnTail(root)) == 3){
-    char connective = getConnective(returnTail(root));
+  if (formulaType == 2 && parse(returnTail(formula)) == 3){
+    char connective = getConnective(returnTail(formula));
     // -( a ^ b ) <=> -a v -b
-    if(connective == '^') alphaOrBeta(tree,addNegation(returnTail(partone(root))),addNegation(parttwo(root)),3);
+    if(connective == '^') alphaOrBeta(tree,addNegation(returnTail(partone(formula))),addNegation(parttwo(formula)),3);
     // -( a v b ) <=> -a ^ -b
-    else if(connective == 'v') alphaOrBeta(tree,addNegation(returnTail(partone(root))), addNegation(parttwo(root)), 2);
+    else if(connective == 'v') alphaOrBeta(tree,addNegation(returnTail(partone(formula))), addNegation(parttwo(formula)), 2);
     // -( a > b ) <=> a ^ - b
-    else if(connective == '>') alphaOrBeta(tree,returnTail(partone(root)), addNegation(parttwo(root)), 2);
+    else if(connective == '>') alphaOrBeta(tree,returnTail(partone(formula)), addNegation(parttwo(formula)), 2);
   }
 }
 
@@ -291,20 +291,20 @@ void complete(struct tree *tree){
 int closed(struct tree *tree, int *literals){
   int newLiterals[6];
   memcpy(newLiterals, literals, 6*sizeof(int));
-  char *root = (*tree).root;
-  int parseVal = parse(root);
+  char *formula = (*tree).formula;
+  int parseVal = parse(formula);
 
   if(parseVal == 0) return 0;
 
   if(parseVal == 1){
-    char current = root[0];
+    char current = formula[0];
     if(current == 'p'){newLiterals[0] = 1;}
     else if(current == 'q'){ newLiterals[1] = 1;}
     else if(current == 'r'){ newLiterals[2] = 1;}
   }
   
-  if((parseVal == 2) && (parse(returnTail(root)) == 1)){
-    char current = root[1];
+  if((parseVal == 2) && (parse(returnTail(formula)) == 1)){
+    char current = formula[1];
     if(current == 'p'){newLiterals[3] = 1;}
     else if(current == 'q'){ newLiterals[4] = 1;}
     else if(current == 'r'){ newLiterals[5] = 1;}
@@ -369,7 +369,7 @@ int main()
         /* here you should initialise a theory S with one formula (name) in it and then initialise a tableau t with on theory (S) in it*/
         /* then you should call a function that completes the tableau t*/
         struct tree newTree;
-        newTree.root = name;
+        newTree.formula = name;
         newTree.parent = NULL;
         newTree.left = NULL;
         newTree.right = NULL;
