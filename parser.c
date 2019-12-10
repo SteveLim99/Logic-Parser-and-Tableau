@@ -15,14 +15,16 @@ struct tree
   struct tree *parent;
 };
 
+//This is a helper method used in partone and parttwo 
+//This methods returns a new character pointer that contains the characters within the range provided
 char *getCharacterInRange(char *inputChar, int start, int end){
-  char *newCharPointer = (char*)malloc(sizeof(char) * (end - start));
-  int index = 0, i;
+  int final = end - start, newIndex = 0, i;
+  char *newCharPointer = (char*)malloc(sizeof(char) * final);
   for(i = start; i < end ; i++){
-      newCharPointer[index] = inputChar[i];
-      index ++;
+      newCharPointer[newIndex] = inputChar[i];
+      newIndex ++;
   }
-  newCharPointer[index] = '\0';
+  newCharPointer[newIndex] = '\0';
   return newCharPointer;
 }
 
@@ -63,14 +65,15 @@ char *parttwo(char *inputChar){
 }
 
 char *returnTail(char *inputChar) {
-  char *returnPointer = (char*) malloc(strlen(inputChar) * sizeof(char));
-  int id = 1, index = 0;
-  while(inputChar[id] != '\0'){
-      returnPointer[index] = inputChar[id];
-      id++;
-      index++;
+  // oldIndex is initialised to 1 as we want to skip the first character 
+  int oldIndex = 1, newIndex = 0, length = strlen(inputChar);
+  char *returnPointer = (char*) malloc(length * sizeof(char));
+  while(inputChar[oldIndex] != '\0'){
+      returnPointer[newIndex] = inputChar[oldIndex];
+      oldIndex ++;
+      newIndex ++;
   }
-  returnPointer[index] = '\0';
+  returnPointer[newIndex] = '\0';
   return returnPointer;
 }
 
@@ -194,7 +197,8 @@ char *removeDoubleNegation(char *inputChar){
 }
 
 char *addNegation(char *inputChar){
-  int length = strlen(inputChar) + 1,newIndex = 0, oldIndex = 0;
+  // length adds 1 to the string length to compensate for the negation 
+  int length = strlen(inputChar) + 1, newIndex = 0, oldIndex = 0;
   char *returnList = (char*) malloc(length * sizeof(char));
   returnList[newIndex++] = '-';
   while(inputChar[oldIndex] != '\0'){
@@ -285,12 +289,12 @@ void complete(struct tree *tree){
   }
 }
 
-
 //literals variable contains the literals currently present in the parent node
 //It represents p, q, r and -p, -q, -r
-int closed(struct tree *tree, int *literals){
+int closed(struct tree *tree, int *oldLiterals){
   int newLiterals[6];
-  memcpy(newLiterals, literals, 6*sizeof(int));
+  //Copies the literals from the previous branch 
+  memcpy(newLiterals, oldLiterals, 6*sizeof(int));
   char *formula = (*tree).formula;
   int parseVal = parse(formula);
 
