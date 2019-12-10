@@ -77,6 +77,7 @@ char *returnTail(char *inputChar) {
   return returnPointer;
 }
 
+//Helper function used to check if the binary formula is valid 
 int compareBracketAndConnectives(char *inputChar){
   int index = 0, brackets = 0, connectives  = 0;
   while(inputChar[index] != '\0'){
@@ -127,6 +128,7 @@ int parse(char *inputChar){
   }
 }
 
+//Helper function used to get the connective of the formula 
 char getConnective(char *inputChar){
   int brackets = 0, index = 0;
   while(inputChar[index+1] != '\0'){
@@ -227,6 +229,7 @@ void addNode(struct tree *tree, char *inputChar){
   if((*tree).left != NULL){
     addNode((*tree).left, inputChar);
   }
+  // If the there are no branches, we add the input to the left of the branch
   else{
     makeNewNode(tree,inputChar,1);
   }
@@ -247,6 +250,8 @@ void alphaOrBeta(struct tree *tree, char *first, char *second, int type){
       makeNewNode(tree,first,1);
       makeNewNode(tree,second,2);
     }
+    // If there is already a branch on the left, we iterate through the branch on the left 
+    // If there is a branch on the right, we do the same. 
     else{
       alphaOrBeta((*tree).left,first,second,3);
       if((*tree).right != NULL){
@@ -263,7 +268,9 @@ void makeTree(struct tree *tree){
   //Binary formulas 
   if(formulaType == 3){
     char connective = getConnective(formula);
+    // a ^ b remains unchange so we just parse partone and parttwo
     if(connective == '^') alphaOrBeta(tree,partone(formula),parttwo(formula),2);
+    // a v b remains unchange so we parse partone and parttwo
     else if(connective == 'v') alphaOrBeta(tree,partone(formula), parttwo(formula), 3);
     // a > b <=> -a v b
     else if(connective == '>') alphaOrBeta(tree,addNegation(partone(formula)), parttwo(formula), 3);
@@ -300,6 +307,7 @@ int closed(struct tree *tree, int *oldLiterals){
 
   if(parseVal == 0) return 0;
 
+  //Literals 
   if(parseVal == 1){
     char current = formula[0];
     if(current == 'p'){newLiterals[0] = 1;}
@@ -307,6 +315,7 @@ int closed(struct tree *tree, int *oldLiterals){
     else if(current == 'r'){ newLiterals[2] = 1;}
   }
   
+  //Negated literals
   if((parseVal == 2) && (parse(returnTail(formula)) == 1)){
     char current = formula[1];
     if(current == 'p'){newLiterals[3] = 1;}
